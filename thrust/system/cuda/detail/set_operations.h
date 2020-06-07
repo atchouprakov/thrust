@@ -923,18 +923,21 @@ namespace __set_operations {
 #pragma unroll
       for (int i = 0; i < ITEMS_PER_THREAD; ++i)
       {
-        bool pA = compare_op(aKey, bKey);
-        bool pB = compare_op(bKey, aKey);
+        if ((aBegin < aEnd) && (bBegin < bEnd))
+        {
+          bool pA = compare_op(aKey, bKey);
+          bool pB = compare_op(bKey, aKey);
 
-        // The outputs must come from A by definition of set interection.
-        output[i]  = aKey;
-        indices[i] = aBegin;
+          // The outputs must come from A by definition of set interection.
+          output[i]  = aKey;
+          indices[i] = aBegin;
 
-        if ((aBegin < aEnd) && (bBegin < bEnd) && pA == pB)
-          active_mask |= 1 << i;
+          if (pA == pB)
+            active_mask |= 1 << i;
 
-        if (!pB) {aKey = keys[++aBegin]; }
-        if (!pA) {bKey = keys[++bBegin]; }
+          if (!pB) {aKey = keys[++aBegin]; }
+          if (!pA) {bKey = keys[++bBegin]; }
+        }
       }
       return active_mask;
     }
